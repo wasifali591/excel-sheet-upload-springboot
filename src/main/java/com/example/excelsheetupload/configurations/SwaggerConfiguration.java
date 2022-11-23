@@ -21,8 +21,8 @@ import java.util.Collections;
  * @version 1.0
  * @since 23/11/22
  */
-@Configuration
-@EnableSwagger2
+//@Configuration
+//@EnableSwagger2
 public class SwaggerConfiguration {
     /**
      * This method define {@link Docket} bean.
@@ -31,7 +31,7 @@ public class SwaggerConfiguration {
      *
      * @return {@link Docket}
      */
-    @Bean
+//    @Bean
     public Docket swaggerConfigurationDocket() {
         return new Docket(DocumentationType.SWAGGER_2)
                 .select()
