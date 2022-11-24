@@ -1,9 +1,16 @@
 package com.example.excelsheetupload.controllers;
 
+import com.example.excelsheetupload.dtos.requests.EmployeeRequestDto;
 import com.example.excelsheetupload.dtos.responses.ApiResponseDto;
+import com.example.excelsheetupload.entities.Employee;
+import com.example.excelsheetupload.services.impl.EmployeeServiceImpl;
 import com.example.excelsheetupload.services.impl.FileServiceImpl;
 
 import com.example.excelsheetupload.services.impl.FileStorageServiceImpl;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +30,9 @@ import org.springframework.web.multipart.MultipartFile;
 import com.example.excelsheetupload.exceptions.StorageException;
 import com.example.excelsheetupload.exceptions.StorageFileNotFoundException;
 
+import java.io.IOException;
+import java.util.ArrayList;
+
 @RestController
 @RequestMapping("/files")
 //@Api(tags = "File Controller", value = "FileController", description = "Controller for File Management")
@@ -32,8 +42,24 @@ public class FileHandleController {
     private FileServiceImpl fileService;
     @Autowired
     private FileStorageServiceImpl fileStorage;
+    @Autowired
+    private EmployeeServiceImpl employeeService;
 
 
+    @PostMapping("/employee/{id}")
+    public ResponseEntity<Object> addEmployee(@PathVariable Long id, @RequestBody Employee employee){
+//        return ResponseEntity.ok().body(fileService.findAllFile());
+        return new ApiResponseDto()
+                .generateResponse(HttpStatus.OK, employeeService.saveEmployee(employee, id),
+                        "Successfully data saved");
+    }
+
+    @GetMapping("/employee")
+    public ResponseEntity<Object> addEmployee(){
+        return new ApiResponseDto()
+                .generateResponse(HttpStatus.OK, employeeService.getEmployee(),
+                        "Successfully data saved");
+    }
     /**
      * This method is used to get all files.
      *
@@ -47,8 +73,10 @@ public class FileHandleController {
 //    })
     @GetMapping()
     public ResponseEntity<Object> getAll(){
-        return ResponseEntity.ok().body(fileService.findAllFile());
-        //return new ApiResponseDto()                .generateResponse(HttpStatus.OK, fileService.findAllFile(),                        "Successfully data retrieved");
+//        return ResponseEntity.ok().body(fileService.findAllFile());
+        return new ApiResponseDto()
+                .generateResponse(HttpStatus.OK, fileService.findAllFile(),
+                        "Successfully data retrieved");
     }
 
     /**
@@ -63,7 +91,7 @@ public class FileHandleController {
 //            @ApiResponse(code = 404, message = "Resource doesn't exist!")
 //    })
     @DeleteMapping("/{id}")
-    public ResponseEntity<Object> deleteFile(@PathVariable Long id){
+    public ResponseEntity<Object> deleteFile(@PathVariable Long id) throws IOException {
         fileService.deleteFile(id);
         return new ApiResponseDto().generateResponse(HttpStatus.OK, null, "Successfully deleted");
     }

@@ -1,4 +1,5 @@
 package com.example.excelsheetupload.services;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.stream.Stream;
 
@@ -48,4 +49,9 @@ public interface FileStorageService {
      * Deletes all files within the local file storage.
      */
     void deleteAll();
+
+    /**
+     * delete selected file
+     */
+//    void deleteFile(String path) throws IOException;
 }

@@ -1,5 +1,6 @@
 package com.example.excelsheetupload.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -8,6 +9,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -16,7 +18,7 @@ import java.util.Set;
 @NoArgsConstructor
 public class File {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(nullable = false,updatable = false)
     private Long id;
     private String name;
@@ -25,9 +27,10 @@ public class File {
      * It has one-to-many relation with {@link Employee} class.
      * It represents business organization provided subscriptions pack.
      */
-    @OneToMany//(cascade = CascadeType.REMOVE, orphanRemoval = true)
+    @JsonIgnore
+    @OneToMany(cascade = CascadeType.REMOVE, mappedBy = "file")
     //@JoinColumn(name = "file_id")
-    private Set<Employee> employees;
+    private List<Employee> employees;
     /**
      * It represents record created date.
      */

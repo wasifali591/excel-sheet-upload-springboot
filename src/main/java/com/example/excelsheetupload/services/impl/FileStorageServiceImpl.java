@@ -1,7 +1,10 @@
 package com.example.excelsheetupload.services.impl;
 
+import com.example.excelsheetupload.entities.File;
 import com.example.excelsheetupload.services.FileStorageService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -26,6 +29,9 @@ import com.example.excelsheetupload.exceptions.StorageFileNotFoundException;
 public class FileStorageServiceImpl implements FileStorageService {
     private Path filesStoragePath;
 
+    @Autowired
+    private FileServiceImpl fileService;
+
     public FileStorageServiceImpl(@Value("${files.storage.location}") String filesStorageLocation) {
         // Initialize files upload location from properties
         this.filesStoragePath = Paths.get(filesStorageLocation);
@@ -43,6 +49,7 @@ public class FileStorageServiceImpl implements FileStorageService {
 
     @Override
     public void store(MultipartFile file) throws StorageException, MultipartException {
+        File fileData = new File();
         try {
             // Check for empty file exception
             if (file.isEmpty()) {
@@ -51,6 +58,13 @@ public class FileStorageServiceImpl implements FileStorageService {
             // Get the absolute path for the file to upload
             Path destinationFile = this.filesStoragePath.resolve(Paths.get(file.getOriginalFilename())).normalize()
                     .toAbsolutePath();
+
+            /**
+             * save file information to databse
+             */
+            fileData.setName(file.getOriginalFilename());
+            fileData.setPath(destinationFile.toString());
+            fileService.saveFile(fileData);
 
             // Security check that file upload path parent is same as storage location.
             // This checks that no path has been appended externally to upload file name.
@@ -104,4 +118,11 @@ public class FileStorageServiceImpl implements FileStorageService {
         // Deletes all files from the storage root directory
         FileSystemUtils.deleteRecursively(filesStoragePath.toFile());
     }
+
+//    @Override
+//    public void deleteFile(String path) throws IOException {
+//        Path filePath = Paths.get(path);
+////        FileSystemUtils.deleteRecursively(filePath);
+//        Files.delete(filePath);
+//    }
 }
