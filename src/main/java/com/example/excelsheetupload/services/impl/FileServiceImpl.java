@@ -5,21 +5,19 @@ import java.util.List;
 import com.example.excelsheetupload.entities.File;
 import com.example.excelsheetupload.repositories.FileRepository;
 import com.example.excelsheetupload.services.FileService;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.transaction.Transactional;
-
 @Service
-@Transactional
-@RequiredArgsConstructor
 public class FileServiceImpl implements FileService {
-
+    @Autowired
     private FileRepository fileRepository;
 
     @Override
     public List<File> findAllFile(){
+        System.out.println(fileRepository==null);
         return fileRepository.findAll();
+
     }
 
     @Override

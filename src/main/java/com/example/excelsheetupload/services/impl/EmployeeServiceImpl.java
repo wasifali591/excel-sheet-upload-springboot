@@ -4,14 +4,13 @@ import com.example.excelsheetupload.entities.Employee;
 import com.example.excelsheetupload.repositories.EmployeeRepository;
 import com.example.excelsheetupload.services.EmployeeService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.transaction.Transactional;
 
 @Service
-@Transactional
-@RequiredArgsConstructor
 public class EmployeeServiceImpl implements EmployeeService {
+    @Autowired
     private EmployeeRepository employeeRepository;
 
     @Override

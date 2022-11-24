@@ -25,8 +25,8 @@ public class File {
      * It has one-to-many relation with {@link Employee} class.
      * It represents business organization provided subscriptions pack.
      */
-    @OneToMany(cascade = CascadeType.REMOVE, orphanRemoval = true)
-    @JoinColumn(name = "file_id")
+    @OneToMany//(cascade = CascadeType.REMOVE, orphanRemoval = true)
+    //@JoinColumn(name = "file_id")
     private Set<Employee> employees;
     /**
      * It represents record created date.

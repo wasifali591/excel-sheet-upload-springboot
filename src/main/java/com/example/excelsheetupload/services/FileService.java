@@ -3,6 +3,8 @@ package com.example.excelsheetupload.services;
 import java.util.List;
 
 import com.example.excelsheetupload.entities.File;
+import org.springframework.stereotype.Service;
+
 
 public interface FileService {
 

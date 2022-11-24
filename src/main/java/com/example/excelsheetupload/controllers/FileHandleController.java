@@ -4,16 +4,17 @@ import com.example.excelsheetupload.dtos.responses.ApiResponseDto;
 import com.example.excelsheetupload.services.impl.FileServiceImpl;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/files")
-@RequiredArgsConstructor
 //@Api(tags = "File Controller", value = "FileController", description = "Controller for File Management")
 public class FileHandleController {
 
+    @Autowired
     private FileServiceImpl fileService;
 
 
@@ -30,9 +31,8 @@ public class FileHandleController {
 //    })
     @GetMapping()
     public ResponseEntity<Object> getAll(){
-        return new ApiResponseDto()
-                .generateResponse(HttpStatus.OK, fileService.findAllFile(),
-                        "Successfully data retrieved");
+        return ResponseEntity.ok().body(fileService.findAllFile());
+        //return new ApiResponseDto()                .generateResponse(HttpStatus.OK, fileService.findAllFile(),                        "Successfully data retrieved");
     }
 
     /**
