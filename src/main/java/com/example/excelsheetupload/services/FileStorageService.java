@@ -1,8 +1,9 @@
 package com.example.excelsheetupload.services;
-import java.io.IOException;
+
 import java.nio.file.Path;
 import java.util.stream.Stream;
 
+import com.example.excelsheetupload.entities.File;
 import org.springframework.core.io.Resource;
 import org.springframework.web.multipart.MultipartException;
 import org.springframework.web.multipart.MultipartFile;
@@ -26,7 +27,7 @@ public interface FileStorageService {
      * @throws StorageException
      * @throws MultipartException
      */
-    void store(MultipartFile file) throws StorageException, MultipartException;
+    File store(MultipartFile file) throws StorageException, MultipartException;
 
     /**
      * Returns a list of stored files within the local file storage.
@@ -50,8 +51,4 @@ public interface FileStorageService {
      */
     void deleteAll();
 
-    /**
-     * delete selected file
-     */
-//    void deleteFile(String path) throws IOException;
 }

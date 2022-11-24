@@ -9,7 +9,6 @@ import java.util.List;
 import com.example.excelsheetupload.entities.File;
 import com.example.excelsheetupload.repositories.FileRepository;
 import com.example.excelsheetupload.services.FileService;
-import com.example.excelsheetupload.services.FileStorageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -29,6 +28,9 @@ public class FileServiceImpl implements FileService {
 
     @Override
     public File saveFile(File file){
+////        if (!fileRepository.findByName(file.getName()).isEmpty()) {
+//            throw new RuntimeException("File already exists.");
+//        }
         return fileRepository.save(file);
     }
 

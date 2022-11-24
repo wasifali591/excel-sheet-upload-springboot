@@ -17,7 +17,6 @@ import java.util.stream.Stream;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
-import org.springframework.stereotype.Service;
 import org.springframework.util.FileSystemUtils;
 import org.springframework.web.multipart.MultipartException;
 import org.springframework.web.multipart.MultipartFile;
@@ -48,7 +47,7 @@ public class FileStorageServiceImpl implements FileStorageService {
     }
 
     @Override
-    public void store(MultipartFile file) throws StorageException, MultipartException {
+    public File store(MultipartFile file) throws StorageException, MultipartException {
         File fileData = new File();
         try {
             // Check for empty file exception
@@ -64,7 +63,7 @@ public class FileStorageServiceImpl implements FileStorageService {
              */
             fileData.setName(file.getOriginalFilename());
             fileData.setPath(destinationFile.toString());
-            fileService.saveFile(fileData);
+
 
             // Security check that file upload path parent is same as storage location.
             // This checks that no path has been appended externally to upload file name.
@@ -78,6 +77,10 @@ public class FileStorageServiceImpl implements FileStorageService {
         } catch (IOException ex) {
             throw new StorageException("Failed to store file.", ex);
         }
+        /**
+         * save the file data and return
+         */
+        return (fileService.saveFile(fileData));
     }
 
     @Override
@@ -119,10 +122,4 @@ public class FileStorageServiceImpl implements FileStorageService {
         FileSystemUtils.deleteRecursively(filesStoragePath.toFile());
     }
 
-//    @Override
-//    public void deleteFile(String path) throws IOException {
-//        Path filePath = Paths.get(path);
-////        FileSystemUtils.deleteRecursively(filePath);
-//        Files.delete(filePath);
-//    }
 }

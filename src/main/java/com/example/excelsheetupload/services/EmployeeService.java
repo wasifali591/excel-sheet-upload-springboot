@@ -11,6 +11,6 @@ public interface EmployeeService {
      * save Employee
      * @return
      */
-    public Employee saveEmployee(Employee employee, Long id);
+    public Employee saveEmployee(Employee employee);
     public List<Employee> getEmployee();
 }

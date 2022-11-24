@@ -1,16 +1,17 @@
 package com.example.excelsheetupload.controllers;
 
-import com.example.excelsheetupload.dtos.requests.EmployeeRequestDto;
 import com.example.excelsheetupload.dtos.responses.ApiResponseDto;
 import com.example.excelsheetupload.entities.Employee;
+import com.example.excelsheetupload.entities.File;
 import com.example.excelsheetupload.services.impl.EmployeeServiceImpl;
 import com.example.excelsheetupload.services.impl.FileServiceImpl;
 
 import com.example.excelsheetupload.services.impl.FileStorageServiceImpl;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import org.springframework.batch.core.*;
+import org.springframework.batch.core.launch.JobLauncher;
+import org.springframework.batch.core.repository.JobExecutionAlreadyRunningException;
+import org.springframework.batch.core.repository.JobInstanceAlreadyCompleteException;
+import org.springframework.batch.core.repository.JobRestartException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,7 +32,9 @@ import com.example.excelsheetupload.exceptions.StorageException;
 import com.example.excelsheetupload.exceptions.StorageFileNotFoundException;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/files")
@@ -44,13 +47,19 @@ public class FileHandleController {
     private FileStorageServiceImpl fileStorage;
     @Autowired
     private EmployeeServiceImpl employeeService;
+    @Autowired
+    private JobLauncher jobLauncher;
 
+    @Autowired
+    private Job job;
+
+    private Map<Long, JobExecution> jobTracker = new HashMap<>();
 
     @PostMapping("/employee/{id}")
     public ResponseEntity<Object> addEmployee(@PathVariable Long id, @RequestBody Employee employee){
 //        return ResponseEntity.ok().body(fileService.findAllFile());
         return new ApiResponseDto()
-                .generateResponse(HttpStatus.OK, employeeService.saveEmployee(employee, id),
+                .generateResponse(HttpStatus.OK, employeeService.saveEmployee(employee),
                         "Successfully data saved");
     }
 
@@ -96,17 +105,48 @@ public class FileHandleController {
         return new ApiResponseDto().generateResponse(HttpStatus.OK, null, "Successfully deleted");
     }
 
+    /**
+     * End-point to trigger the batch job for migrating employee data from CSV file
+     * to database. Starts the batch job with some parameters i.e start time and
+     * user name for logging on completion of the job.
+     */
+//    @PostMapping("/job")
+    public void startBatchJob(File file) throws JobExecutionAlreadyRunningException, JobRestartException,
+            JobInstanceAlreadyCompleteException, JobParametersInvalidException {
+
+        // Setup some job parameters for logging
+        Map<String, JobParameter> paramsMap = new HashMap<>();
+        paramsMap.put("TIME", new JobParameter(new Date()));
+        paramsMap.put("BY_USER", new JobParameter("Batch Admin User"));
+        paramsMap.put("FILE_PATH", new JobParameter(file.getPath()));
+        paramsMap.put("FILE_ID", new JobParameter(file.getId()));
+
+        JobParameters params = new JobParameters(paramsMap);
+
+        // Start batch job execution
+        JobExecution jobExecution = jobLauncher.run(job, params);
+
+        jobTracker.put(file.getId(), jobExecution);
+//        return jobExecution.getStatus();
+    }
+
+    @GetMapping("/status/{fileId}")
+    public BatchStatus checkBatchStatus(@PathVariable Long fileId){
+        return jobTracker.get(fileId).getStatus();
+        //Todo: check for null file id
+    }
+
 
     /**
      * File Storage Controller
      */
     @PostMapping("/upload")
-    public String handleFileUpload(@RequestParam("file") MultipartFile file)
-            throws StorageException, MultipartException, SizeLimitExceededException {
+    public ResponseEntity<Object> handleFileUpload(@RequestParam("file") MultipartFile file)
+            throws StorageException, MultipartException, SizeLimitExceededException, JobInstanceAlreadyCompleteException, JobExecutionAlreadyRunningException, JobParametersInvalidException, JobRestartException {
         // Upload file into storage location
-        fileStorage.store(file);
-
-        return "File uploaded successfully.";
+        File fileData = fileStorage.store(file);
+        startBatchJob(fileData);
+        return new ApiResponseDto().generateResponse(HttpStatus.OK, fileData, "File Updated Successfully");
     }
 
     /**

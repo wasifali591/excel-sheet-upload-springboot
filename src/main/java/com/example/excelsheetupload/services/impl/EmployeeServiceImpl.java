@@ -1,6 +1,5 @@
 package com.example.excelsheetupload.services.impl;
 
-import com.example.excelsheetupload.dtos.requests.EmployeeRequestDto;
 import com.example.excelsheetupload.entities.Employee;
 import com.example.excelsheetupload.entities.File;
 import com.example.excelsheetupload.repositories.EmployeeRepository;
@@ -20,9 +19,8 @@ public class EmployeeServiceImpl implements EmployeeService {
     private FileRepository fileRepository;
 
     @Override
-    public Employee saveEmployee(Employee employee, Long id) {
-        File file = fileRepository.findById(id).get();
-        employee.setFile(file);
+    public Employee saveEmployee(Employee employee) {
+
         return employeeRepository.save(employee);
     }
 

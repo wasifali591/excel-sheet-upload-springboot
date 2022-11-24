@@ -10,7 +10,6 @@ import org.hibernate.annotations.UpdateTimestamp;
 import javax.persistence.*;
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
 
 @Entity
 @Data
@@ -29,7 +28,6 @@ public class File {
      */
     @JsonIgnore
     @OneToMany(cascade = CascadeType.REMOVE, mappedBy = "file")
-    //@JoinColumn(name = "file_id")
     private List<Employee> employees;
     /**
      * It represents record created date.
