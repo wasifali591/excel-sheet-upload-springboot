@@ -1,5 +1,9 @@
 package com.example.excelsheetupload.services.impl;
 
+/*
+ * Copyright (c) 2022 Md Wasif Ali.
+ */
+
 import com.example.excelsheetupload.entities.File;
 import com.example.excelsheetupload.services.FileStorageService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -83,38 +87,38 @@ public class FileStorageServiceImpl implements FileStorageService {
         return (fileService.saveFile(fileData));
     }
 
-    @Override
-    public Stream<Path> loadAll() throws StorageException {
-        try {
-            /*
-             * Reads all files with the location up to a depth of 1 level and filters only
-             * files in the storage location. This way we generate a list of files within
-             * the storage location.
-             */
-            return Files.walk(this.filesStoragePath, 1).filter(path -> !path.equals(this.filesStoragePath))
-                    .map(this.filesStoragePath::relativize);
-        } catch (IOException ex) {
-            throw new StorageException("Failed to read stored files.", ex);
-        }
-    }
+//    @Override
+//    public Stream<Path> loadAll() throws StorageException {
+//        try {
+//            /*
+//             * Reads all files with the location up to a depth of 1 level and filters only
+//             * files in the storage location. This way we generate a list of files within
+//             * the storage location.
+//             */
+//            return Files.walk(this.filesStoragePath, 1).filter(path -> !path.equals(this.filesStoragePath))
+//                    .map(this.filesStoragePath::relativize);
+//        } catch (IOException ex) {
+//            throw new StorageException("Failed to read stored files.", ex);
+//        }
+//    }
 
-    @Override
-    public Resource loadAsResource(String filename) throws StorageFileNotFoundException {
-        try {
-            // Get file from path and resolve file to resource
-            Path file = filesStoragePath.resolve(filename);
-            Resource resource = new UrlResource(file.toUri());
-
-            // Return if resource exists and readable else throw exception
-            if (resource.exists() && resource.isReadable()) {
-                return resource;
-            } else {
-                throw new StorageFileNotFoundException("Could not read file " + filename);
-            }
-        } catch (MalformedURLException ex) {
-            throw new StorageFileNotFoundException("Could not read file " + filename + " from storage.", ex);
-        }
-    }
+//    @Override
+//    public Resource loadAsResource(String filename) throws StorageFileNotFoundException {
+//        try {
+//            // Get file from path and resolve file to resource
+//            Path file = filesStoragePath.resolve(filename);
+//            Resource resource = new UrlResource(file.toUri());
+//
+//            // Return if resource exists and readable else throw exception
+//            if (resource.exists() && resource.isReadable()) {
+//                return resource;
+//            } else {
+//                throw new StorageFileNotFoundException("Could not read file " + filename);
+//            }
+//        } catch (MalformedURLException ex) {
+//            throw new StorageFileNotFoundException("Could not read file " + filename + " from storage.", ex);
+//        }
+//    }
 
     @Override
     public void deleteAll() {

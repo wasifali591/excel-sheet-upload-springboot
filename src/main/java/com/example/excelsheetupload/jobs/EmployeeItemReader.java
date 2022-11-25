@@ -1,5 +1,9 @@
 package com.example.excelsheetupload.jobs;
 
+/*
+ * Copyright (c) 2022 Md Wasif Ali.
+ */
+
 import com.example.excelsheetupload.entities.Employee;
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.extensions.excel.RowMapper;
@@ -10,6 +14,14 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.stereotype.Component;
 
+/**
+ * In this  Class contains methods to read data from Excel Sheet
+ * records in our database
+ *
+ * @author Md Wasif Ali
+ * @version 1.0
+ * @since 25/11/22
+ */
 @Component
 public class EmployeeItemReader {
 

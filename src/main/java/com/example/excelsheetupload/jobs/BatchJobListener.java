@@ -1,5 +1,9 @@
 package com.example.excelsheetupload.jobs;
 
+/*
+ * Copyright (c) 2022 Md Wasif Ali.
+ */
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.BatchStatus;
@@ -11,6 +15,11 @@ import org.springframework.stereotype.Component;
 /**
  * Batch job execution status listener to handle pre-processing and
  * post-processing tasks.
+ * its extends {@link JobExecutionListenerSupport}.
+ *
+ * @author Md Wasif Ali
+ * @version 1.0
+ * @since 25/11/22
  */
 @Component
 public class BatchJobListener extends JobExecutionListenerSupport {

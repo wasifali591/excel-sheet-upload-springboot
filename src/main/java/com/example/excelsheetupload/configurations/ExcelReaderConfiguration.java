@@ -1,5 +1,9 @@
 package com.example.excelsheetupload.configurations;
 
+/*
+ * Copyright (c) 2022 Md Wasif Ali.
+ */
+
 import com.example.excelsheetupload.entities.Employee;
 import com.example.excelsheetupload.jobs.BatchJobListener;
 import org.springframework.batch.extensions.excel.poi.PoiItemReader;
@@ -15,7 +19,13 @@ import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemWriter;
 
-
+/**
+ * This is a configuration class for Batch Processing and steps
+ *
+ * @author Md Wasif Ali
+ * @version 1.0
+ * @since 25/11/22
+ */
 @Configuration
 @EnableBatchProcessing
 public class ExcelReaderConfiguration {
@@ -44,8 +54,6 @@ public class ExcelReaderConfiguration {
     @Bean
     public Job job(JobBuilderFactory jobBuilderFactory, StepBuilderFactory stepBuilderFactory,
                    BatchJobListener listener, ItemProcessor<Employee, Employee> employeeItemProcessor, ItemWriter<Employee> employeeItemWriter) {
-
-//        excelReader.setResource(new FileSystemResource(filePath));
 
         /**
          * Create a step: Setup step name, chunk size, reader, processor and writer.

@@ -1,6 +1,11 @@
 package com.example.excelsheetupload.entities;
 
+/*
+ * Copyright (c) 2022 Md Wasif Ali.
+ */
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import io.swagger.annotations.ApiModel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,10 +16,19 @@ import javax.persistence.*;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * This class is an entity class with 5 member variables.
+ * It contains the details of File.
+ *
+ * @author Md Wasif Ali
+ * @version 1.0
+ * @since 25/11/2022
+ */
 @Entity
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@ApiModel(description = "It contains details of Files which will get updated by the user")
 public class File {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
