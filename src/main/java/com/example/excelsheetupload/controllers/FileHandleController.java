@@ -131,7 +131,7 @@ public class FileHandleController {
             @ApiResponse(code = 200, message = "Successfully data retrieved"),
             @ApiResponse(code = 404, message = "No data available!")
     })
-    @GetMapping("files")
+    @GetMapping("/files")
     public ResponseEntity<Object> getAllFiles(){
         logger.trace("Getting List of all Files");
         return new ApiResponseDto()
