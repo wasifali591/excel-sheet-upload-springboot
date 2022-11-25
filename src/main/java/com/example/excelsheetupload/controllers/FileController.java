@@ -50,7 +50,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/golify/api")
 @Api(tags = "File Controller", value = "FileController", description = "Controller for File Management")
-public class FileHandleController {
+public class FileController {
 
     @Autowired
     private FileService fileService;
@@ -65,7 +65,7 @@ public class FileHandleController {
     @Autowired
     private LogService logService;
 
-    private static final Logger logger = LoggerFactory.getLogger(FileHandleController.class);
+    private static final Logger logger = LoggerFactory.getLogger(FileController.class);
 
     private Map<Long, JobExecution> jobTracker = new HashMap<>();
 
@@ -131,7 +131,7 @@ public class FileHandleController {
             @ApiResponse(code = 200, message = "Successfully data retrieved"),
             @ApiResponse(code = 404, message = "No data available!")
     })
-    @GetMapping("/files")
+    @GetMapping("/file/list")
     public ResponseEntity<Object> getAllFiles(){
         logger.trace("Getting List of all Files");
         return new ApiResponseDto()
@@ -151,7 +151,7 @@ public class FileHandleController {
             @ApiResponse(code = 200, message = "Successfully data retrieved"),
             @ApiResponse(code = 404, message = "No data available!")
     })
-    @GetMapping("file/{fileId}")
+    @GetMapping("/file/records/{fileId}")
     public ResponseEntity<Object> getAllRecordsRelatedToFile(@PathVariable Long fileId){
         logger.trace("Getting all Employee details from a file with File Id: {} ", fileId);
         //Create Log for accessing the file in database
@@ -174,31 +174,11 @@ public class FileHandleController {
             @ApiResponse(code = 200, message = "Successfully deleted"),
             @ApiResponse(code = 404, message = "Resource doesn't exist!")
     })
-    @DeleteMapping("file/{fileId}")
+    @DeleteMapping("/file/delete/{fileId}")
     public ResponseEntity<Object> deleteFile(@PathVariable Long fileId) throws IOException {
         logger.trace("Deleting file with FileId: {} ", fileId);
         fileService.deleteFile(fileId);
         return new ApiResponseDto().generateResponse(HttpStatus.OK, null, "Successfully deleted");
-    }
-
-
-    /**
-     * ======================================================================
-     */
-
-//    @PostMapping("/employee/{id}")
-    public ResponseEntity<Object> addEmployee(@PathVariable Long id, @RequestBody Employee employee){
-//        return ResponseEntity.ok().body(fileService.findAllFile());
-        return new ApiResponseDto()
-                .generateResponse(HttpStatus.OK, employeeService.saveEmployee(employee),
-                        "Successfully data saved");
-    }
-
-//    @GetMapping("/employee")
-    public ResponseEntity<Object> addEmployee(){
-        return new ApiResponseDto()
-                .generateResponse(HttpStatus.OK, employeeService.getEmployee(),
-                        "Successfully data saved");
     }
 
 

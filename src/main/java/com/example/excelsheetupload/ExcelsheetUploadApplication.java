@@ -38,6 +38,7 @@ public class ExcelsheetUploadApplication {
 
 			userService.addRoleToUser("wasif","ADMIN");
 			userService.addRoleToUser("wasif","USER");
+
 			userService.addRoleToUser("parinitha","USER");
 		};
 	}
