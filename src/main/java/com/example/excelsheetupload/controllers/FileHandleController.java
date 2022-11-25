@@ -7,14 +7,20 @@ package com.example.excelsheetupload.controllers;
 import com.example.excelsheetupload.dtos.responses.ApiResponseDto;
 import com.example.excelsheetupload.entities.Employee;
 import com.example.excelsheetupload.entities.File;
-import com.example.excelsheetupload.services.impl.EmployeeServiceImpl;
-import com.example.excelsheetupload.services.impl.FileServiceImpl;
-
-import com.example.excelsheetupload.services.impl.FileStorageServiceImpl;
+import com.example.excelsheetupload.entities.Log;
+import com.example.excelsheetupload.exceptions.StorageException;
+import com.example.excelsheetupload.exceptions.StorageFileNotFoundException;
+import com.example.excelsheetupload.services.EmployeeService;
+import com.example.excelsheetupload.services.FileService;
+import com.example.excelsheetupload.services.FileStorageService;
+import com.example.excelsheetupload.services.LogService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import org.apache.tomcat.util.http.fileupload.impl.SizeLimitExceededException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.*;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.batch.core.repository.JobExecutionAlreadyRunningException;
@@ -24,20 +30,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import org.apache.tomcat.util.http.fileupload.impl.SizeLimitExceededException;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartException;
 import org.springframework.web.multipart.MultipartFile;
-
-import com.example.excelsheetupload.exceptions.StorageException;
-import com.example.excelsheetupload.exceptions.StorageFileNotFoundException;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -59,15 +53,19 @@ import java.util.Map;
 public class FileHandleController {
 
     @Autowired
-    private FileServiceImpl fileService;
+    private FileService fileService;
     @Autowired
-    private FileStorageServiceImpl fileStorage;
+    private FileStorageService fileStorage;
     @Autowired
-    private EmployeeServiceImpl employeeService;
+    private EmployeeService employeeService;
     @Autowired
     private JobLauncher jobLauncher;
     @Autowired
     private Job job;
+    @Autowired
+    private LogService logService;
+
+    private static final Logger logger = LoggerFactory.getLogger(FileHandleController.class);
 
     private Map<Long, JobExecution> jobTracker = new HashMap<>();
 
@@ -93,8 +91,11 @@ public class FileHandleController {
     @PostMapping("/file/upload")
     public ResponseEntity<Object> handleFileUpload(@RequestParam("file") MultipartFile file)
             throws StorageException, MultipartException, SizeLimitExceededException, JobInstanceAlreadyCompleteException, JobExecutionAlreadyRunningException, JobParametersInvalidException, JobRestartException {
+        logger.trace("Uploading file...");
         // Upload file into storage location
         File fileData = fileStorage.store(file);
+        logger.trace("Record created for the File {} ", file.getName());
+        logger.trace("Starting Batch Processing...");
         startBatchJob(fileData);
         return new ApiResponseDto().generateResponse(HttpStatus.OK, fileData, "File Updated Successfully");
     }
@@ -113,6 +114,7 @@ public class FileHandleController {
     })
     @GetMapping("/file/upload/status/{fileId}")
     public BatchStatus checkBatchStatus(@PathVariable Long fileId){
+        logger.trace("Getting status of file upload. FileId: {} ", fileId);
         return jobTracker.get(fileId).getStatus();
         //Todo: check for null file id- add validation
     }
@@ -131,6 +133,7 @@ public class FileHandleController {
     })
     @GetMapping("files")
     public ResponseEntity<Object> getAllFiles(){
+        logger.trace("Getting List of all Files");
         return new ApiResponseDto()
                 .generateResponse(HttpStatus.OK, fileService.findAllFile(),
                         "Successfully data retrieved");
@@ -150,6 +153,11 @@ public class FileHandleController {
     })
     @GetMapping("file/{fileId}")
     public ResponseEntity<Object> getAllRecordsRelatedToFile(@PathVariable Long fileId){
+        logger.trace("Getting all Employee details from a file with File Id: {} ", fileId);
+        //Create Log for accessing the file in database
+        File file = fileService.getFileById(fileId);
+        logService.add(new Log(null, file.getName(), null, null));
+
         return new ApiResponseDto()
                 .generateResponse(HttpStatus.OK, employeeService.getEmployeeByFileId(fileId),
                         "Successfully data retrieved");
@@ -168,6 +176,7 @@ public class FileHandleController {
     })
     @DeleteMapping("file/{fileId}")
     public ResponseEntity<Object> deleteFile(@PathVariable Long fileId) throws IOException {
+        logger.trace("Deleting file with FileId: {} ", fileId);
         fileService.deleteFile(fileId);
         return new ApiResponseDto().generateResponse(HttpStatus.OK, null, "Successfully deleted");
     }
@@ -193,14 +202,17 @@ public class FileHandleController {
     }
 
 
-
-
     /**
      * This method is to trigger the batch job for migrating employee data from excel file
      * to database. Starts the batch job with some parameters i.e start time and
-     * user name for logging on completion of the job.
+     * username for logging on completion of the job.
+     *
+     * @param file
+     * @throws JobExecutionAlreadyRunningException
+     * @throws JobRestartException
+     * @throws JobInstanceAlreadyCompleteException
+     * @throws JobParametersInvalidException
      */
-//    @PostMapping("/job")
     public void startBatchJob(File file) throws JobExecutionAlreadyRunningException, JobRestartException,
             JobInstanceAlreadyCompleteException, JobParametersInvalidException {
 

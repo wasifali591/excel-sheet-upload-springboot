@@ -29,14 +29,14 @@ public class BatchJobListener extends JobExecutionListenerSupport {
     @Override
     public void beforeJob(JobExecution jobExecution) {
         JobParameters params = jobExecution.getJobParameters();
-//        logger.info("Employee data migration batch job started by {}", params.getString("BY_USER"));
+        logger.info("Employee data migration batch job started by {}", params.getString("BY_USER"));
     }
 
     @Override
     public void afterJob(JobExecution jobExecution) {
         if (jobExecution.getStatus() == BatchStatus.COMPLETED) {
             JobParameters params = jobExecution.getJobParameters();
-//            logger.info("Employee data migration batch job completed by {}", params.getString("BY_USER"));
+            logger.info("Employee data migration batch job completed by {}", params.getString("BY_USER"));
 
         }
     }
